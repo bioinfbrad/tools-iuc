@@ -251,8 +251,8 @@ python -u trackastra_wrapper.py segment_and_track \
 ## Citation
 
 If you use Trackastra in published research, please cite:
-- Trackastra: [GitHub](https://github.com/QuantumAstronomy/trackastra)
-- Cellpose: Stringer, C., Wang, T., Michaelos, M., & Pachitariu, M. (2021). Cellpose: a generalist algorithm for cellular segmentation. *Nature Methods*, 18(1), 100-106.
+- Trackastra: Gallusser, B. & Weigert, M. (2024) Trackastra: Transformer-based cell tracking for live-cell microscopy. In *European conference on computer vision*, 467-484.
+- Cellpose: Stringer, C., Wang, T., Michaelos, M. & Pachitariu, M. (2021). Cellpose: a generalist algorithm for cellular segmentation. *Nature Methods*, 18(1), 100-106.
 
 ## References
 
