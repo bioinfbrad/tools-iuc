@@ -5,6 +5,7 @@
 **Trackastra** is a deep learning-based tool for tracking cell instances in time-lapse microscopy images. It combines:
 - **Cellpose**: For automatic cell segmentation. This is an optional step when no segmentation is yet available.
 - **Trackastra**: For transformer-based cell tracking across time.
+- **ngff-zarr**: For reading the input OME-zarr.
 - **GEFF**: For storing the tracking result. [GEFF](https://liveimagetrackingtools.org/geff/latest/) is supported, e.g., in napari.
 
 This Galaxy wrapper enables easy access to cell tracking workflows without requiring command-line expertise.
@@ -259,4 +260,5 @@ If you use Trackastra in published research, please cite:
 - [Trackastra Documentation](https://github.com/QuantumAstronomy/trackastra)
 - [Cellpose Documentation](https://cellpose.readthedocs.io/)
 - [GEFF Documentation](https://liveimagetrackingtools.org/geff/latest/)
+- [ngff-zarr Documentation](https://ngff-zarr.readthedocs.io/en/latest/)
 - [Galaxy Tool Development](https://docs.galaxyproject.org/en/master/dev/schema.html)
