@@ -35,40 +35,46 @@ def obtain_lazy_view_from_the_zarr_path(input_path, scale_level, list_of_coords_
     """
     'scale_level' = 0 means the finest/highest (spatial) resolution, the "bottom of a pyramid"
     """
-    import ngff_zarr as nz
-    zarr_handle = nz.from_ngff_zarr(input_path)
+    from ome_zarr.io import parse_url
+    from ome_zarr.reader import Reader
 
-    if scale_level < 0 or scale_level >= len(zarr_handle.images):
+    # image_nodes may include images, labels etc
+    image_nodes = list( Reader(parse_url(input_path))() )
+
+    # first node is often the image pixel data
+    image_index = 0
+    image_node = image_nodes[ image_index ]
+
+    if scale_level < 0 or scale_level >= len(image_node.data):
         flag_error_and_quit("scale index negative or larger than number(-1) of available resolutions that the zarr dataset offers")
 
-    zarr_image = zarr_handle.images[scale_level]
-    #zarr_image.data.shape
-    #zarr_image.dims
+    zarr_image = image_node.data[scale_level]
+    #zarr_image.shape
 
     axes_known = []
+    labels_known = []
     axes_unknown = []
-    curr_axis_idx = 0 #aka dim number
-    for d in zarr_image.dims:
+    for curr_axis_idx,axis in enumerate(image_node.metadata['axes']):
+        d = axis['name']
         if not d in "tzyx":
             # dimension to be "moved" to the front
             axes_unknown.append(curr_axis_idx)
         else:
             axes_known.append(curr_axis_idx)
-        curr_axis_idx += 1
+            labels_known.append(d)
 
     if len(axes_unknown) != len(list_of_coords_for_non_tzyx_dims):
         flag_error_and_quit(f"found {len(axes_unknown)} non_tzyx dimensions but different number ({len(list_of_coords_for_non_tzyx_dims)}) of values for them")
 
     axes_permutation = [*axes_unknown, *axes_known]
     # NB: TODO, would be great to check the order in the 'axes_known' and possibly adjust it...
-    view = zarr_image.data.transpose(axes_permutation)[*list_of_coords_for_non_tzyx_dims]
+    view = zarr_image.transpose(axes_permutation)[*list_of_coords_for_non_tzyx_dims]
 
-    if 'z' not in zarr_image.dims:
+    if 'z' not in labels_known:
         # assuming then tyx, thus injecting 'z':
         view = np.reshape(view, (view.shape[0],1,view.shape[1],view.shape[2]))
 
     if len(view.shape) != 4:
-        #ds = [ zarr_image.dims[n] for n in axes_permutation[-4:] ]
         flag_error_and_quit(f"after fixing non_tzyx dimensions, tzyx (4) dimensions were supposed to be left; instead {len(view.shape)} dimensions are available")
 
     return view

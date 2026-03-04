@@ -10,10 +10,4 @@ version = "0.1.0"
 [dependencies]
 trackastra = ">0.5"
 cellpose = "<4.0"
-
-# required for the ngff_zarr
-aiohttp = ">=3.13.3,<4"
-s3fs = ">=2026.1.0,<2027"
-
-[pypi-dependencies]
-ngff_zarr = ">=0.20.0"
+ome-zarr = ">=0.13.0,<0.14"
