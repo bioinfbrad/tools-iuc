@@ -66,6 +66,9 @@ def obtain_lazy_view_from_the_zarr_path(input_path, scale_level, list_of_coords_
     if len(axes_unknown) != len(list_of_coords_for_non_tzyx_dims):
         flag_error_and_quit(f"found {len(axes_unknown)} non_tzyx dimensions but different number ({len(list_of_coords_for_non_tzyx_dims)}) of values for them")
 
+    if 't' not in labels_known:
+        flag_error_and_quit(f"time axis is missing among the discovered known axes ({labels_known}), can't track single static image")
+
     axes_permutation = [*axes_unknown, *axes_known]
     # NB: TODO, would be great to check the order in the 'axes_known' and possibly adjust it...
     view = zarr_image.transpose(axes_permutation)[*list_of_coords_for_non_tzyx_dims]
