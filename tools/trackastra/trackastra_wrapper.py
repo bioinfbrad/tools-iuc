@@ -83,9 +83,10 @@ def obtain_lazy_view_from_the_zarr_path(input_path, scale_level, list_of_coords_
 def segmentation(view_into_raw_data, tracking_options = default_tracking_options):
     """
     Input ('view_into_raw_data') must be t,z,y,x even for 2D+t images.
-    Output is a (possibly very large!) numpy with segmentation masks,
-    and the corresponding (view into) into the 'view_into_raw_data'.
-    Both outputs are (down-)scaled (given 'tracking_options') already!
+
+    Output is a (possibly very large!) numpy array with segmentation masks,
+    and the corresponding view of the 'view_into_raw_data'. Both outputs
+    are (down-)scaled already if that is requested in the 'tracking_options'.
 
     Check the 'default_tracking_options' dictionary to see what all keys are supported.
     """
@@ -116,7 +117,7 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
     if t_to == -1: t_to = view_into_raw_data.shape[0]-1
     view_into_raw_data = view_into_raw_data[t_from:t_to+1]
 
-    # 'all_masks' will be in the new downscaled size, and the trimmed length!
+    # 'all_masks' and 'all_raws' will be in the new downscaled size, and of the trimmed length!
     print("memory allocation for segmentation results started...")
     all_masks = np.empty((view_into_raw_data.shape[0],*new_spatial_size), dtype='uint16')
     #
@@ -130,8 +131,6 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
         masks,_,_ = seg_model.eval([img], channels=[0,0], z_axis=0, do_3D=do_3D, normalize=True)
         print(f"done segmenting frame {t}, input image size was {img.shape}")
 
-        # btw, it is possible to re-use the memory into which the original zarr data landed
-        #img[:] = masks[0,:]
         all_masks[t] = masks[0]
         all_raws[t] = img
     print("segmenting done")
@@ -183,6 +182,7 @@ def tracking(view_into_raw_data, seg_data, tracking_options = default_tracking_o
     """
     Both inputs ('view_into_raw_data' and 'seg_data') must be t,z,y,x even for 2D+t images,
     and of the same shapes.
+
     Output is that of Trackastra, and napari tracks; both with possibly downscaled spatial
     coordinates (depending on the 'tracking_options').
 
@@ -199,7 +199,7 @@ def tracking(view_into_raw_data, seg_data, tracking_options = default_tracking_o
     print("tracking done")
 
     # TODO: upscale the coordinates in zyx axes
-    # consuider also tracking_options.start_from_tp to offset the 0-based time coordinate of the 'view_into_data'
+    # consider also tracking_options.start_from_tp to offset the 0-based time coordinate of the 'view_into_data'
     return track_graph, graph_to_napari_tracks(track_graph)
 
 
@@ -266,7 +266,7 @@ def segment_and_track_entry(zarr_path: str, scale_level: int,
     It is worthwhile to downscale in x,y,z if the input images are 500+ pixels per dimension.
     """
     raw_data_view = obtain_lazy_view_from_the_zarr_path(zarr_path, scale_level, list_of_coords_for_non_tzyx_dims_to_reach_raw_channel)
-    # NB: now the data_view is guaranteed to be order as: tzyx
+    # NB: now the raw_data_view is guaranteed to be ordered as tzyx
     #     and it is truly an unmodified view, not scaled, not trimmed
     #
     raw,seg = segmentation(raw_data_view, tracking_options)
@@ -286,8 +286,8 @@ def track_entry(zarr_path: str, scale_level: int,
     """
     raw_data_view = obtain_lazy_view_from_the_zarr_path(zarr_path, scale_level, list_of_coords_for_non_tzyx_dims_to_reach_raw_channel)
     seg_data_view = obtain_lazy_view_from_the_zarr_path(zarr_path, scale_level, list_of_coords_for_non_tzyx_dims_to_reach_seg_channel)
-    # NB: now the data_view is guaranteed to be order as: tzyx
-    #     and it is truly an unmodified view, not scaled, not trimmed
+    # NB: now both *_data_view are guaranteed to be ordered as tzyx
+    #     and they are truly unmodified views, not scaled, not trimmed
     #
     raw,seg = resize(raw_data_view, seg_data_view, tracking_options)
     t = tracking(raw,seg, tracking_options)
