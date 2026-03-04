@@ -100,6 +100,7 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
     # just FYI
     do_3D = view_into_raw_data.shape[1] > 1
     print(f"seg model initiated, going to do 3D: {do_3D}")
+    print(f"provided input data: {view_into_raw_data.shape[0]} images of shape {view_into_raw_data.shape[1:]} pixels")
 
     # figure out the (possibly) downscaled spatial size (zyx axes)
     down_scale_factors = [ \
@@ -116,6 +117,7 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
     t_to = tracking_options.get('end_at_tp', -1)
     if t_to == -1: t_to = view_into_raw_data.shape[0]-1
     view_into_raw_data = view_into_raw_data[t_from:t_to+1]
+    print(f"using input data: {view_into_raw_data.shape[0]} images of shape {new_spatial_size} pixels")
 
     # 'all_masks' and 'all_raws' will be in the new downscaled size, and of the trimmed length!
     print("memory allocation for segmentation results started...")
@@ -142,6 +144,8 @@ def resize(view_into_raw_data, view_into_seg_data, tracking_options = default_tr
     from skimage.transform import resize
     from math import ceil
 
+    print(f"provided input data: {view_into_raw_data.shape[0]} images of shape {view_into_raw_data.shape[1:]} pixels")
+
     # figure out the (possibly) downscaled spatial size (zyx axes)
     down_scale_factors = [ \
         tracking_options.get('downscale_factor_z',1), \
@@ -158,6 +162,7 @@ def resize(view_into_raw_data, view_into_seg_data, tracking_options = default_tr
     if t_to == -1: t_to = view_into_raw_data.shape[0]-1
     view_into_raw_data = view_into_raw_data[t_from:t_to+1]
     view_into_seg_data = view_into_seg_data[t_from:t_to+1]
+    print(f"using input data: {view_into_raw_data.shape[0]} images of shape {new_spatial_size} pixels")
 
     # 'all_masks' will be in the new downscaled size, and the trimmed length!
     print("memory allocation for segmentation results started...")
