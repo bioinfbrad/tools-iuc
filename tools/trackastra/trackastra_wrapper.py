@@ -295,6 +295,16 @@ def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = defa
     graph_to_ctc(track_graph,seg, True, outdir=result_path)
 
 
+def resave_tiffs(folder_with_tiffs):
+    import tifffile as TIFF
+    from pathlib import Path
+    #
+    tif_files = sorted(list( Path(folder_with_tiffs).glob("*.tif") ))
+    for tif_file in tif_files:
+        print(f"resaving tiff {tif_file}")
+        TIFF.imwrite( tif_file, TIFF.imread(tif_file) )
+
+
 def example1():
     tops = default_tracking_options.copy()
     tops['downscale_factor_x']=3.0
