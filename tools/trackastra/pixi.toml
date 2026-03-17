@@ -10,4 +10,4 @@ version = "0.1.0"
 [dependencies]
 trackastra = ">0.5"
 cellpose = "<4.0"
-ome-zarr = ">=0.13.0,<0.14"
+ome-zarr = ">=0.14.0,<0.15"
