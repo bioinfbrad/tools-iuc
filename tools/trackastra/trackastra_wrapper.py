@@ -250,6 +250,7 @@ def upscale_napari_tracks(ntracks, tracking_options = default_tracking_options):
 
 def segment_and_track_entry(zarr_path: str, scale_level: int,
                             list_of_coords_for_non_tzyx_dims_to_reach_raw_channel: list[int],
+                            result_path: str,
                             tracking_options = default_tracking_options):
     """
     Check the 'default_tracking_options' dictionary to see what all keys are supported.
@@ -261,13 +262,15 @@ def segment_and_track_entry(zarr_path: str, scale_level: int,
     #
     raw,seg = segmentation(raw_data_view, tracking_options)
     t = tracking(raw,seg, tracking_options)
-    #
-    postprocess_and_save_tracking(t, tracking_options)
+
+    upscale_timeshift_save(t,seg, result_path, tracking_options)
+    return t
 
 
 def track_entry(zarr_path: str, scale_level: int,
                 list_of_coords_for_non_tzyx_dims_to_reach_raw_channel: list[int],
                 list_of_coords_for_non_tzyx_dims_to_reach_seg_channel: list[int],
+                result_path: str,
                 tracking_options = default_tracking_options):
     """
     Check the 'default_tracking_options' dictionary to see what all keys are supported.
@@ -281,9 +284,16 @@ def track_entry(zarr_path: str, scale_level: int,
     #
     raw,seg = resize(raw_data_view, seg_data_view, tracking_options)
     t = tracking(raw,seg, tracking_options)
-    #
-    postprocess_and_save_tracking(t, tracking_options)
 
+    upscale_timeshift_save(t,seg, result_path, tracking_options)
+    return t
+
+
+def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = default_tracking_options):
+    from trackastra.tracking import write_to_geff
+
+    upscale_and_timeshift_trackastra_graph(track_graph, tracking_options)
+    write_to_geff(track_graph,seg, result_path)
 
 
 def example():
