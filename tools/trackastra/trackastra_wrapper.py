@@ -197,7 +197,6 @@ def tracking(view_into_raw_data, seg_data, tracking_options = default_tracking_o
     Check the 'default_tracking_options' dictionary to see what all keys are supported.
     """
     from trackastra.model import Trackastra
-    from trackastra.tracking import graph_to_napari_tracks
 
     m2 = tracking_options.get('tracking_model','ctc')
     tra_model = Trackastra.from_pretrained(m2)
@@ -296,19 +295,25 @@ def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = defa
     graph_to_ctc(track_graph,seg, True, outdir=result_path)
 
 
-def example():
-    testing_zarr_path = 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.5/idr0051/180712_H2B_22ss_Courtney1_20180712-163837_p00_c00_preview.zarr/0'
-    #
-    tracking_options = default_tracking_options.copy()
-    tracking_options['downscale_factor_x'] = 2.0
-    tracking_options['downscale_factor_y'] = 2.0
-    tracking_options['downscale_factor_z'] = 1.5
-    tracking_options['start_from_tp'] = 0
-    tracking_options['end_at_tp'] = 5
-    #
-    # axes of the 'testing_zarr_path' are: 't', 'c', 'z', 'y', 'x'; and just one channel ('c')
-    list_of_coords_for_non_tzyx_dims_to_reach_raw_channel = [0] # to choose the channel
-    segment_and_track_entry(testing_zarr_path,0, list_of_coords_for_non_tzyx_dims_to_reach_raw_channel, tracking_options)
+def example1():
+    tops = default_tracking_options.copy()
+    tops['downscale_factor_x']=3.0
+    tops['downscale_factor_y']=3.0
+    tops['downscale_factor_z']=3.0
+    dataset_url = 'https://s3.cl2.du.cesnet.cz/35b9fef6_a5c7_4724_b7ad_0db97899a356:public/CTC_trif_01_cropped_2channels_v04.zarr'
+    dataset_scale = 0
+    select_raw = [0]
+    select_masks = [1]
+    t = track_entry(dataset_url,dataset_scale, select_raw,select_masks, 'result1_as_ctc', tops)
+
+
+def example2():
+    tops = default_tracking_options.copy()
+    dataset_url = 'https://s3.cl2.du.cesnet.cz/35b9fef6_a5c7_4724_b7ad_0db97899a356:public/CTC_trif_01_cropped_2channels_v04.zarr'
+    dataset_scale = 2
+    select_raw = [0]
+    select_masks = [1]
+    t = track_entry(dataset_url,dataset_scale, select_raw,select_masks, 'result2_as_ctc', tops)
 
 
 if __name__ == '__main__':
