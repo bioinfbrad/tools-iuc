@@ -112,7 +112,7 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
         tracking_options.get('downscale_factor_x',1) ]
     new_spatial_size = [ ceil(size/scale) for size,scale in zip(view_into_raw_data[0].shape, down_scale_factors) ]
     #
-    do_scaling = min(down_scale_factors) != max(down_scale_factors) != 1
+    do_scaling = min(down_scale_factors) != 1 or max(down_scale_factors) != 1
     print(f"seg, going to scale images: {do_scaling}")
 
     # trim (along the time axis) the input data
@@ -156,7 +156,7 @@ def resize(view_into_raw_data, view_into_seg_data, tracking_options = default_tr
         tracking_options.get('downscale_factor_x',1) ]
     new_spatial_size = [ ceil(size/scale) for size,scale in zip(view_into_raw_data[0].shape, down_scale_factors) ]
     #
-    do_scaling = min(down_scale_factors) != max(down_scale_factors) != 1
+    do_scaling = min(down_scale_factors) != 1 or max(down_scale_factors) != 1
     print(f"resizing, going to scale images: {do_scaling}")
 
     # trim (along the time axis) the input data
