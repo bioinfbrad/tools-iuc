@@ -203,12 +203,10 @@ def tracking(view_into_raw_data, seg_data, tracking_options = default_tracking_o
     tra_model = Trackastra.from_pretrained(m2)
 
     print("tracking started...")
-    track_graph = tra_model.track(view_into_raw_data, seg_data, mode="greedy")  # or mode="ilp", or "greedy_nodiv"
+    track_graph,_ = tra_model.track(view_into_raw_data, seg_data, mode="greedy")  # or mode="ilp", or "greedy_nodiv"
     print("tracking done")
 
-    # TODO: upscale the coordinates in zyx axes
-    # consider also tracking_options.start_from_tp to offset the 0-based time coordinate of the 'view_into_data'
-    return track_graph, graph_to_napari_tracks(track_graph)
+    return track_graph
 
 
 def upscale_and_timeshift_trackastra_graph(track_graph, tracking_options = default_tracking_options):
