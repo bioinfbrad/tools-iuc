@@ -211,11 +211,14 @@ def tracking(view_into_raw_data, seg_data, tracking_options = default_tracking_o
     return track_graph, graph_to_napari_tracks(track_graph)
 
 
-def upscale_trackastra_graph(track_graph, tracking_options = default_tracking_options):
+def upscale_and_timeshift_trackastra_graph(track_graph, tracking_options = default_tracking_options):
+    # upscale the coordinates in zyx axes, and shift in time axis
+    # TODO: consider also tracking_options.start_from_tp to offset the 0-based time coordinate of the 'view_into_data'
     down_scale_factors = [ \
         tracking_options.get('downscale_factor_z',1), \
         tracking_options.get('downscale_factor_y',1), \
         tracking_options.get('downscale_factor_x',1) ]
+    t_from = tracking_options.get('start_from_tp', 0)
 
     nodes = track_graph.nodes()
     d = nodes.data()
@@ -227,6 +230,7 @@ def upscale_trackastra_graph(track_graph, tracking_options = default_tracking_op
             orig_coords[1] * down_scale_factors[1], \
             orig_coords[2] * down_scale_factors[2] )
         node['coords'] = new_coords
+        node['time'] += t_from
 
     return track_graph
 
