@@ -290,10 +290,10 @@ def track_entry(zarr_path: str, scale_level: int,
 
 
 def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = default_tracking_options):
-    from trackastra.tracking import write_to_geff
+    from trackastra.tracking import graph_to_ctc
 
     upscale_and_timeshift_trackastra_graph(track_graph, tracking_options)
-    write_to_geff(track_graph,seg, result_path)
+    graph_to_ctc(track_graph,seg, True, outdir=result_path)
 
 
 def example():
