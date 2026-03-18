@@ -14,13 +14,14 @@
 import numpy as np
 
 default_tracking_options = {
-    'downscale_factor_x' : 1.0,
-    'downscale_factor_y' : 1.0,
-    'downscale_factor_z' : 1.0,
-    'start_from_tp'      : 0,
-    'end_at_tp'          : -1,
-    'segmentation_model' : 'cyto3',
-    'tracking_model'     : 'ctc'
+    'downscale_factor_x'  : 1.0,
+    'downscale_factor_y'  : 1.0,
+    'downscale_factor_z'  : 1.0,
+    'start_from_tp'       : 0,
+    'end_at_tp'           : -1,
+    'segmentation_model'  : 'cyto3',
+    'objects_diameter_px' : 25,
+    'tracking_model'      : 'ctc'
 }
 
 
@@ -129,11 +130,12 @@ def segmentation(view_into_raw_data, tracking_options = default_tracking_options
     print("memory allocation for raw images started...")
     all_raws = np.empty((view_into_raw_data.shape[0],*new_spatial_size), dtype=view_into_raw_data.dtype)
 
-    print("segmenting started...")
+    diameter = tracking_options.get('objects_diameter_px',25)
+    print(f"segmenting started... (diameter={diameter})")
     for t in range(view_into_raw_data.shape[0]):
         img = np.array( resize(view_into_raw_data[t], new_spatial_size, preserve_range=True) ) if do_scaling \
               else np.array(view_into_raw_data[t], dtype=view_into_raw_data.dtype)
-        masks,_,_ = seg_model.eval([img], channels=[0,0], z_axis=0, do_3D=do_3D, normalize=True)
+        masks,_,_ = seg_model.eval([img], channels=[0,0], diameter=diameter, z_axis=0, do_3D=do_3D, normalize=True)
         print(f"done segmenting frame {t}, input image size was {img.shape}")
 
         all_masks[t] = masks[0]
