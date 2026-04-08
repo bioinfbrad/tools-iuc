@@ -1,0 +1,114 @@
+Context:
+- to show a tracking pipeline on ZARR image data
+  - pipeline is open source, open license
+  - made of the popular (one-click) cellpose3 and trackastra
+  - not made by the original authors! credits due...
+
+- currently an aspirant for a proper Galaxy node
+  - a step closer for a better FAIR pipeline
+  - what ever you learn today, it applies to the future node
+
+- may be resources hungry
+  - what good it is then?
+  - well, you can run in free tier of Galaxy
+  - that's why we are here today
+
+
+
+Context graphically: (uncovering, two slides technically)
+remote zarr      Galaxy/any server
+      local laptop
+
+		Napari + Fiji
+
+
+
+What trackastra is about
+- inputs
+  - masks - have to show it what is it that you want to track
+  - raw - uses AI to score similarity internally
+    (not all trackers do it like this!)
+
+- outputs
+  - napari tracks aka directly for napari
+  - GEFF - IMHO a future format for tracking data exchange
+  - CTC format - works the best as of now
+
+Btw, GEFF internally also keeps masks, just like the CTC format.
+
+
+
+What if I don't have segmentation masks?
+
+- There's internally also a cellpose3 ('cause for CPU!!)
+- it does on-the-fly compute segmentation masks
+  - (beware it can be heavy!)
+  - and feeds them to trackastra
+  - the mask are unf. not saved
+    - (to save aside is a feature request, on a TODO list)
+
+
+
+So, how do I control it:
+- via tracking options object
+- choosing the subset
+- show validator's geometry views
+
+
+
+So, how do I control it:
+- via tracking options object
+- NB: Zarrs can be monsters
+for tracking, not necessarily full resolution is a must!
+
+- limit in time-span
+- limit in space
+  - either by taking native zarr lower res
+    - fetches fewer of data
+  - or by explictly subsampling
+  - or combine the two...
+
+
+
+Here's the pipeline finally:
+- Galaxy: in Jupyter notebook
+- Galaxy: in Terminal
+- elsewhere: in Terminal (as you may have your own system to use)
+
+
+
+What's needed for the inspection:
+Napari:
+  - pip install napari pyqt napari-ome-zarr napari-ctc-opener
+  - Napari open remote zarr
+  - Napari open ctc tracks
+
+Fiji -> Mastodon:
+  - update sites for Mastodon and CTC
+  - Mastodon open remote zarr
+  - create a .mastodon project out of it
+  - import CTC, and save
+
+  - colorize the tracks possibly
+  - inst. Blender, point Mastodon at it, use Blender view
+
+
+
+X Demo datasets to have fun with:
+X list of urls to cesnet, with geometries!
+X consider 'objects_diameter_px'=25 -
+
+
+
+How to read estimate nuclei/cells diameter at a appropriate scale?
+Fiji, N5 import, monitor and subtract mouse coords
+
+
+
+How to read understand zarr geometry and scales:
+pixi init
+pixi add ome-zarr
+pixi run
+ome_zarr view /full/path/to/dataset.zarr
+open webbrowser at localhost:8000
+
