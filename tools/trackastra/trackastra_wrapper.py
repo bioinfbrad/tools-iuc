@@ -1,40 +1,39 @@
-# INPUT PARAMETERS:
-# - path to the zarr dataset
-# - downscale in x,y,z, default value 1,1,1
-# - channel and other axes/dimensions that would need to be pinned/fixed
-# - time points span (to be able to test on a short range)
-#
-# OUTPUT PARAMETERS:
-# - name of the .csv file into which the tracking would be saved
-#   (the .csv together with the original input zarr can be opened Mastodon tracking software)
-# - OPTIONAL! path to zarr into which segmentation will be saved
-#
-# Note: The intermediate segmentation results will not be saved for now...
+from __future__ import annotations
+
+import sys
+from math import ceil
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
+
 default_tracking_options = {
-    'downscale_factor_x'  : 1.0,
-    'downscale_factor_y'  : 1.0,
-    'downscale_factor_z'  : 1.0,
-    'start_from_tp'       : 0,
-    'end_at_tp'           : -1,
-    'segmentation_model'  : 'cyto3',
-    'objects_diameter_px' : 25,
-    'tracking_model'      : 'ctc'
+    "downscale_factor_x": 1.0,
+    "downscale_factor_y": 1.0,
+    "downscale_factor_z": 1.0,
+    "start_from_tp": 0,
+    "end_at_tp": -1,
+    "segmentation_model": "cyto3",
+    "objects_diameter_px": 25,
+    "tracking_model": "ctc",
 }
 
 
-
-def flag_error_and_quit(error_msg):
-    import sys
+def flag_error_and_quit(error_msg: str) -> None:
     print(f"ERROR: {error_msg}", file=sys.stderr)
     sys.exit(1)
 
 
-def obtain_lazy_view_from_the_zarr_path(input_path, scale_level, list_of_coords_for_non_tzyx_dims):
+def obtain_lazy_view_from_the_zarr_path(
+    input_path: str,
+    scale_level: int,
+    list_of_coords_for_non_tzyx_dims: list[int],
+):
     """
-    'scale_level' = 0 means the finest/highest (spatial) resolution, the "bottom of a pyramid"
+    Return a lazy t,z,y,x view from an OME-Zarr dataset.
+
+    scale_level=0 means the finest/highest spatial resolution.
     """
     from ome_zarr.io import parse_url
     from ome_zarr.reader import Reader
@@ -249,6 +248,13 @@ def upscale_napari_tracks(ntracks, tracking_options = default_tracking_options):
     return ntracks
 
 
+def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = default_tracking_options):
+    from trackastra.tracking import graph_to_ctc
+
+    upscale_and_timeshift_trackastra_graph(track_graph, tracking_options)
+    graph_to_ctc(track_graph, seg, True, outdir=result_path)
+
+
 def segment_and_track_entry(zarr_path: str, scale_level: int,
                             list_of_coords_for_non_tzyx_dims_to_reach_raw_channel: list[int],
                             result_path: str,
@@ -288,13 +294,6 @@ def track_entry(zarr_path: str, scale_level: int,
 
     upscale_timeshift_save(t,seg, result_path, tracking_options)
     return t
-
-
-def upscale_timeshift_save(track_graph,seg, result_path, tracking_options = default_tracking_options):
-    from trackastra.tracking import graph_to_ctc
-
-    upscale_and_timeshift_trackastra_graph(track_graph, tracking_options)
-    graph_to_ctc(track_graph,seg, True, outdir=result_path)
 
 
 def resave_tiffs(folder_with_tiffs):
