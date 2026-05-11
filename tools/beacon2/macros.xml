@@ -24,7 +24,6 @@
     <xml name="stdio">
         <stdio>
             <exit_code range="1:" level="fatal"/>
-            <regex match="(?i)(error|exception|traceback)" source="stderr" level="fatal"/>
         </stdio>
     </xml>
 

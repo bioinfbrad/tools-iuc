@@ -1,0 +1,3 @@
+#!/workspaces/tools-iuc/planemo_env/bin/python
+from Cheetah.CheetahWrapper import _cheetah_compile
+_cheetah_compile()
